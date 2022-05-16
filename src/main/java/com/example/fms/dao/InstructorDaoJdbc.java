@@ -2,7 +2,6 @@ package com.example.fms.dao;
 
 import com.example.fms.model.CourseOffering;
 import com.example.fms.model.Instructor;
-import com.example.fms.model.Student;
 import com.example.fms.model.User;
 
 import java.sql.Connection;
@@ -13,10 +12,7 @@ import java.util.ArrayList;
 public class InstructorDaoJdbc implements InstructorDao{
     @Override
     public Instructor findInstructorById(String id) {
-        Instructor instructor= new Instructor();
-
-        String sql = "select * from instructors" +
-                "where id = \""+id+"\";";
+        String sql = "select * from instructors where id = \""+id+"\";";
         Connection conn = null;
 
         try{
@@ -24,6 +20,7 @@ public class InstructorDaoJdbc implements InstructorDao{
             PreparedStatement statement = conn.prepareStatement(sql);
             ResultSet rs = statement.executeQuery();
             if(rs.next()){
+                Instructor instructor=new Instructor();
                 UserDaoJdbc dummy = new UserDaoJdbc();
                 User tempUser = dummy.findUserByID(id);
                 instructor.setId(tempUser.getId());
@@ -33,6 +30,7 @@ public class InstructorDaoJdbc implements InstructorDao{
                 instructor.setPassword(tempUser.getPassword());
                 instructor.setBirthdate(tempUser.getBirthdate());
                 instructor.setTitle(rs.getString("title"));
+                return instructor;
             }
         }
         catch(Exception ex){
@@ -41,13 +39,13 @@ public class InstructorDaoJdbc implements InstructorDao{
         finally{
             Jdbc.closeConnection(conn);
         }
-        return instructor;
+        return null;
     }
 
     @Override
     public ArrayList<Instructor> findInstructorsByOffering(CourseOffering offering) {
         ArrayList<Instructor> instructors = new ArrayList<>();
-        int offering_id=offering.getCourse_ID();
+        int offering_id=offering.getCourseID();
         String sql="select * from course_offerings " +
                 "join teaches using (course_offering_id) " +
                 "join users using(id)" +
